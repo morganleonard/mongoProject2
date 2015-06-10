@@ -7,6 +7,7 @@ MongoClient.connect('mongodb://127.0.0.1:27017/test', function(err, db) {
   if (err) {
     throw err;
   }
+});
 
 
 
@@ -45,6 +46,7 @@ router.post('/', function(request, response) {
   });
 });
 */
+});
 
 //===================== GET handler for info page on short URL =============================//
 router.get('/info/:shortUrl', function(request, response) {
