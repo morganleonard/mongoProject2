@@ -3,11 +3,15 @@ var router = express.Router();
 var MongoClient = require('mongodb').MongoClient;
 var uuid = require('node-uuid');
 
-MongoClient.connect('mongodb://127.0.0.1:27017/test', function(err, db) {
-  if (err) {
-    throw err;
-  }
-});
+
+
+
+
+
+
+
+
+
 
 
 
@@ -15,14 +19,43 @@ MongoClient.connect('mongodb://127.0.0.1:27017/test', function(err, db) {
 router.get('/', function(request, response) {
   response.render('index', {});
   // index.jade needs a form to submit a URL for shortening
-});
+
+
+
+
+
 
 
 //===================== POST handler for submitting url in form on home page ======================//
-router.post('/', function(request, response) {
-  var collection = db.collection('urls');
+router.post('/url', function(request, response) {
+  var random = uuid.v4();
   var url = request.body.url;
+  var group = {
+      "shortened": random,
+      "target": url,
+      "clicks": 8,
+      "last_click": "2015-01-13T16:42:00"
+  };
+  MongoClient.connect('mongodb://127.0.0.1:27017/test', function(err, db) {
+    if (err) {
+      throw err;
+    }
 
+  
+    var collection = db.collection('url_shortener');
+    collection.insert(group , function(err, docs) {
+      collection.count(function(err, count) {
+        console.log("count = %s", count);
+      });
+      collection.find().toArray(function(err, results) {
+        console.dir(results);
+        db.close();
+      });
+    });
+    console.log(random);
+    console.log(url); 
+    response.redirect("/");
+  });
   //create shortUrl and object with info like :
   /*
   {
@@ -45,8 +78,9 @@ router.post('/', function(request, response) {
     response.redirect('/info/' + shortUrl);
   });
 });
-*/
+
 });
+*/
 
 //===================== GET handler for info page on short URL =============================//
 router.get('/info/:shortUrl', function(request, response) {
@@ -71,4 +105,7 @@ router.get('/:shortUrl', function(request, response) {
 
 
 module.exports = router;
+
+
+
 
