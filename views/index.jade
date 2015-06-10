@@ -1,0 +1,14 @@
+extends layout
+
+block append content
+  //- h1= title
+  if error
+    h3= error
+  p Submit a URL for shortening
+  div
+    form(method="post" action="/")
+      h2 Shorten this URL
+      div
+        label URL:
+          input(type="text" name="url" placeholder="url")
+          input(type="submit" value="En-shorten-ize!")
