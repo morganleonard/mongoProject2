@@ -27,35 +27,28 @@ router.post('/url', function(request, response) {
     if (err) {
       throw err;
     }
-    // if(there is a document with that url)
-      var collection = db.collection('url_shortener');
-      collection.insert(
-        {
-          "shortened": random,
-          "target": url,
-          "clicks": 0
-        }, function(err, docs) {
-        // collection.count(function(err, count) {
-        //   console.log("count = %s", count);
-        // });
-        collection.update({'target': url}, { $inc: {"clicks": 1}
-        });
-        collection.update({'target': url}, { $currentDate: {"last_click": {$type: "timestamp"}}
-        });
-        collection.find().toArray(function(err, results) {
-          //console.dir(results);
-          db.close();
-        });
-      // } else{
-      //   collection.update({'target': url}, { $inc: {"clicks": 1}
-      //   });
-      //   collection.update({'target': url}, { $currentDate: {"last_click": {$type: "timestamp"}}
-      //   });
-
-      // }
+    var collection = db.collection('url_shortener');
+    collection.insert(
+      {
+        "shortened": random,
+        "target": url,
+        "clicks": 0,
+        "last_click" : null
+      }, function(err, docs) {
+      collection.count(function(err, count) {
+        console.log("count = %s", count);
+      });
+      collection.update({'target': url}, { $inc: {"clicks": 1}
+      });
+      collection.update({'target': url}, { $currentDate: {"last_click": {$type: "timestamp"}}
+      });
+      collection.find().toArray(function(err, results) {
+        //console.dir(results);
+        db.close();
+      });
     });
-    console.log(random);
-    console.log(url); 
+    //console.log(random);
+    //console.log(url); 
     response.redirect("/info/" + random);
   });
 });
@@ -68,10 +61,10 @@ router.get('/info/:shortUrl', function(request, response) {
     }
     var collection = db.collection('url_shortener'),
         shortUrl = request.params.shortUrl;
-    console.log ('short URL : ')
-    console.log (shortUrl);
+    //console.log ('short URL : ')
+    //console.log (shortUrl);
     collection.find({shortened : shortUrl}).toArray(function(err, results) {
-      console.log(results[0])
+      //console.log(results[0])
       response.render('info', {url : results[0]});
       })
   });
@@ -79,14 +72,16 @@ router.get('/info/:shortUrl', function(request, response) {
 
 
 //===================== GET handler for rerouting from short URL  =============================//
-router.get('/:shortUrl', function(request, response) {
-  var database = app.get('database');
-  var collection = db.collection('urls'),
-      shortUrl = request.params.shortUrl;
-
-  collection.find({'shortened': shortUrl}, function(err, url) {
-    //update clicks and last_click keys of object
-    response.redirect(url.target);
+router.get('/redirect/:shortUrl', function(request, response) {
+  MongoClient.connect('mongodb://127.0.0.1:27017/test', function(err, db) {
+    if (err) {
+      throw err;
+    }
+    var collection = db.collection('url_shortener'),
+        shortUrl   = request.params.shortUrl;
+    collection.find({shortened : shortUrl}).toArray(function(err, results) {
+      response.redirect(results[0].target);
+      })
   });
 });
 
