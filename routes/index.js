@@ -2,7 +2,6 @@ var express = require('express');
 var router = express.Router();
 var MongoClient = require('mongodb').MongoClient;
 var uuid = require('node-uuid');
-// var app = require('../app');
 
 //===================== GET handler for home page =============================//
 router.get('/', function(request, response) {
@@ -13,9 +12,7 @@ router.get('/', function(request, response) {
     }
     var collection = db.collection('url_shortener');
     console.log('inside mongo');
-    // console.log(db.collection.find());
   });
-  // console.log(collection.select({target}))
   response.render('index', {});
 });
 
@@ -33,8 +30,6 @@ router.post('/url', function(request, response) {
       if(results[0]){
         collection.update({'target': url}, { $inc: {"clicks": 1}, 
           $set: { "last_click": new Date()}
-        // });
-        // collection.update({'target': url}, { $currentDate: {"last_click": {$type: "timestamp"}}
         });
         response.redirect("/info/" + results[0].shortened);
       } else {
@@ -49,21 +44,13 @@ router.post('/url', function(request, response) {
               collection.count(function(err, count) {
                 console.log("count = %s", count);
           });
-          // collection.update({'target': url}, { $inc: {"clicks": 1}
-          // });
-          // collection.update({'target': url}, { $currentDate: {"last_click": {$type: "timestamp"}}
-          // });
-          // console.log(collection.find({"target": url}));
           collection.find().toArray(function(err, results) {
             console.dir(results);
             db.close();
           });
         });
-
       }
     });
-    //console.log(random);
-    //console.log(url);
   });
 });
 
@@ -75,8 +62,6 @@ router.get('/info/:shortUrl', function(request, response) {
     }
     var collection = db.collection('url_shortener'),
         shortUrl = request.params.shortUrl;
-    //console.log ('short URL : ')
-    //console.log (shortUrl);
     collection.find({shortened : shortUrl}).toArray(function(err, results) {
       console.log(results[0])
       response.render('info', {url : results[0]});
