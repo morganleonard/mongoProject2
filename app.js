@@ -11,18 +11,10 @@ var users = require('./routes/users');
 
 var app = express();
 
-var db;
-MongoClient.connect('mongodb://127.0.0.1:27017/test', function(err, thisdb) {
-  if (err) {
-    throw err;
-  }
-  db = thisdb;
-  app.set('database', db);
-});
-
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
+
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(__dirname + '/public/favicon.ico'));
