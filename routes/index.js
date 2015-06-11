@@ -12,43 +12,35 @@ router.get('/', function(request, response) {
 router.post('/url', function(request, response) {
   var random = uuid.v4();
   var url = request.body.url;
-
-  MongoClient.connect('mongodb://127.0.0.1:27017/test', function(err, db) {
-    if (err) {
-      throw err;
-    }
-    var collection = db.collection('url_shortener');
-    collection.insert(
-      {
-        "shortened": random,
-        "target": url,
-        "clicks": 0
-      }, function(err, docs) {
-      collection.count(function(err, count) {
-        console.log("count = %s", count);
-      });
-      collection.update({'target': url}, { $inc: {"clicks": 1}
-      });
-      collection.update({'target': url}, { $currentDate: {"last_click": {$type: "timestamp"}}
-      });
-      collection.find().toArray(function(err, results) {
-        console.dir(results);
-        db.close();
-      });
+  var database = app.get('database');
+  var collection = db.collection('url_shortener');
+  collection.insert(
+    {
+      "shortened": random,
+      "target": url,
+      "clicks": 0
+    }, function(err, docs) {
+    collection.count(function(err, count) {
+      console.log("count = %s", count);
     });
-    console.log(random);
-    console.log(url); 
-    response.redirect("/info/" + random);
+    collection.update({'target': url}, { $inc: {"clicks": 1}
+    });
+    collection.update({'target': url}, { $currentDate: {"last_click": {$type: "timestamp"}}
+    });
+    collection.find().toArray(function(err, results) {
+      console.dir(results);
+      db.close();
+    });
   });
+  console.log(random);
+  console.log(url); 
+  response.redirect("/info/" + random);
 });
 
 //===================== GET handler for info page on short URL =============================//
 router.get('/info/:shortUrl', function(request, response) {
-  MongoClient.connect('mongodb://127.0.0.1:27017/test', function(err, db) {
-    if (err) {
-      throw err;
-    }
-    var collection = db.collection('urls'),
+  var database = app.get('database');
+    var collection = db.collection('url_shortener'),
         shortUrl = request.params.shortUrl;
     collection.find().toArray({'shortened': shortUrl}, function(err, url) {
       response.render('info', {url: url});
