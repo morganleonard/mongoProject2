@@ -13,10 +13,9 @@ router.get('/', function(request, response) {
 router.post('/url', function(request, response) {
   var random = uuid.v4();
   var url = request.body.url;
-  // var database = app.get('database');
-  MongoClient.connect('mongodb://127.0.0.1:27017/url_shortener', function(err, db) {
+  MongoClient.connect('mongodb://127.0.0.1:27017/test', function(err, db) {
     if (err) {
-       throw err;
+      throw err;
     }
     var collection = db.collection('url_shortener');
     collection.insert(
@@ -33,29 +32,30 @@ router.post('/url', function(request, response) {
       collection.update({'target': url}, { $currentDate: {"last_click": {$type: "timestamp"}}
       });
       collection.find().toArray(function(err, results) {
-        console.dir(results);
+        //console.dir(results);
         db.close();
       });
     });
+    console.log(random);
+    console.log(url); 
+    response.redirect("/info/" + random);
   });
-  console.log(random);
-  console.log(url); 
-  response.redirect("/info/" + random);
 });
 
 //===================== GET handler for info page on short URL =============================//
 router.get('/info/:shortUrl', function(request, response) {
-  MongoClient.connect('mongodb://127.0.0.1:27017/test', function(err, db){
-    if(err){
+  MongoClient.connect('mongodb://127.0.0.1:27017/test', function(err, db) {
+    if (err) {
       throw err;
     }
     var collection = db.collection('url_shortener'),
         shortUrl = request.params.shortUrl;
-    // var target = db.collection.find({target: {}});
-    console.log("target");
-    // collection.find().toArray({'shortened': shortUrl}, function(err, url) {
-    // response.render('info', {url: url});
-    // });
+    console.log ('short URL : ')
+    console.log (shortUrl);
+    collection.find({shortened : shortUrl}).toArray(function(err, results) {
+      console.log(results)
+      response.render('info', {url : results});
+      })
   });
 });
 
@@ -74,6 +74,3 @@ router.get('/:shortUrl', function(request, response) {
 
 
 module.exports = router;
-
-
-
