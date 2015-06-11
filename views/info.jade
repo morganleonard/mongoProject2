@@ -1,11 +1,11 @@
 extends layout
 
 block content
-	p Shortened URL:
-		a(href=url.shortened) url.shortened 
-	p Target:
-		span url.target
-	p Number of clicks: 
-		span url.clicks
-	p Last Clicked:
-		span url.last_click
+  p Shortened URL:
+    a(href=url.shortened) url.shortened 
+  p Target:
+    span= url.target
+  p Number of clicks: 
+    span= url.clicks
+  p Last Clicked:
+    span= url.last_click
