@@ -53,8 +53,8 @@ router.get('/info/:shortUrl', function(request, response) {
     console.log ('short URL : ')
     console.log (shortUrl);
     collection.find({shortened : shortUrl}).toArray(function(err, results) {
-      console.log(results)
-      response.render('info', {url : results});
+      console.log(results[0])
+      response.render('info', {url : results[0]});
       })
   });
 });
