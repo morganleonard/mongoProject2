@@ -22,7 +22,8 @@ router.post('/url', function(request, response) {
       {
         "shortened": random,
         "target": url,
-        "clicks": 0
+        "clicks": 0,
+        "last_click" : null
       }, function(err, docs) {
       collection.count(function(err, count) {
         console.log("count = %s", count);
@@ -36,8 +37,8 @@ router.post('/url', function(request, response) {
         db.close();
       });
     });
-    console.log(random);
-    console.log(url); 
+    //console.log(random);
+    //console.log(url); 
     response.redirect("/info/" + random);
   });
 });
@@ -50,10 +51,10 @@ router.get('/info/:shortUrl', function(request, response) {
     }
     var collection = db.collection('url_shortener'),
         shortUrl = request.params.shortUrl;
-    console.log ('short URL : ')
-    console.log (shortUrl);
+    //console.log ('short URL : ')
+    //console.log (shortUrl);
     collection.find({shortened : shortUrl}).toArray(function(err, results) {
-      console.log(results[0])
+      //console.log(results[0])
       response.render('info', {url : results[0]});
       })
   });
@@ -61,13 +62,16 @@ router.get('/info/:shortUrl', function(request, response) {
 
 
 //===================== GET handler for rerouting from short URL  =============================//
-router.get('/:shortUrl', function(request, response) {
-  var collection = db.collection('urls'),
-      shortUrl = request.params.shortUrl;
-
-  collection.find({'shortened': shortUrl}, function(err, url) {
-    //update clicks and last_click keys of object
-    response.redirect(url.target);
+router.get('/redirect/:shortUrl', function(request, response) {
+  MongoClient.connect('mongodb://127.0.0.1:27017/test', function(err, db) {
+    if (err) {
+      throw err;
+    }
+    var collection = db.collection('url_shortener'),
+        shortUrl   = request.params.shortUrl;
+    collection.find({shortened : shortUrl}).toArray(function(err, results) {
+      response.redirect(results[0].target);
+      })
   });
 });
 
