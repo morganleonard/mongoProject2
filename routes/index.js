@@ -20,7 +20,6 @@ router.get('/', function(request, response) {
   response.render('index', {});
 });
   // index.jade needs a form to submit a URL for shortening
-});
 
 
 
@@ -54,6 +53,7 @@ router.post('/url', function(request, response) {
         console.log("count = %s", count);
       });
       collection.update({'target': url}, { $inc: {"clicks": 1}});
+      collection.update({'target': url}, { $currentDate: {"last_click": {$type: "timestamp"}}});
       collection.find().toArray(function(err, results) {
         console.dir(results);
         db.close();
@@ -63,11 +63,7 @@ router.post('/url', function(request, response) {
     console.log(url); 
     response.redirect("/info/" + random);
   });
-<<<<<<< HEAD
 });
-=======
-});  
->>>>>>> master
   //create shortUrl and object with info like :
   /*
   {
@@ -80,27 +76,29 @@ router.post('/url', function(request, response) {
 */
 /*
   var docToInsert = {
-  	"shortened" : //create shortened url,
-  	"target": url,
-  	"clicks": 0,
-  	"last_click": //current time
+    "shortened" : //create shortened url,
+    "target": url,
+    "clicks": 0,
+    "last_click": //current time
   }
-
   collection.insert({docToInsert}, function(err, docs) {
     response.redirect('/info/' + shortUrl);
   });
 });
-
 });
 */
 
 //===================== GET handler for info page on short URL =============================//
 router.get('/info/:shortUrl', function(request, response) {
-  var collection = db.collection('urls'),
-      shortUrl = request.params.shortUrl;
-  collection.find().toArray({'shortened': shortUrl}, function(err, url) {
-    response.render('info', {url: url});
-  });
+  MongoClient.connect('mongodb://127.0.0.1:27017/test', function(err, db) {
+    if (err) {
+      throw err;
+    }
+    var collection = db.collection('urls'),
+        shortUrl = request.params.shortUrl;
+    collection.find().toArray({'shortened': shortUrl}, function(err, url) {
+      response.render('info', {url: url});
+    });
 });
 
 
@@ -110,14 +108,13 @@ router.get('/:shortUrl', function(request, response) {
       shortUrl = request.params.shortUrl;
 
   collection.find({'shortened': shortUrl}, function(err, url) {
-  	//update clicks and last_click keys of object
+    //update clicks and last_click keys of object
     response.redirect(url.target);
   });
 });
 
 
 module.exports = router;
-
 
 
 
