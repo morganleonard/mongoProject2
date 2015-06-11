@@ -18,6 +18,7 @@ var uuid = require('node-uuid');
 //===================== GET handler for home page =============================//
 router.get('/', function(request, response) {
   response.render('index', {});
+});
   // index.jade needs a form to submit a URL for shortening
 
 
@@ -30,6 +31,7 @@ router.get('/', function(request, response) {
 router.post('/url', function(request, response) {
   var random = uuid.v4();
   var url = request.body.url;
+
   var group = {
       "shortened": random,
       "target": url,
@@ -40,13 +42,17 @@ router.post('/url', function(request, response) {
     if (err) {
       throw err;
     }
-
-  
     var collection = db.collection('url_shortener');
-    collection.insert(group , function(err, docs) {
+    collection.insert(
+      {
+        "shortened": random,
+        "target": url,
+        "clicks": 0
+      }, function(err, docs) {
       collection.count(function(err, count) {
         console.log("count = %s", count);
       });
+      collection.update({'target': url}, { $inc: {"clicks": 1}});
       collection.find().toArray(function(err, results) {
         console.dir(results);
         db.close();
@@ -56,6 +62,7 @@ router.post('/url', function(request, response) {
     console.log(url); 
     response.redirect("/");
   });
+});
   //create shortUrl and object with info like :
   /*
   {
