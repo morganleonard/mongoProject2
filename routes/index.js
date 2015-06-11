@@ -6,6 +6,16 @@ var uuid = require('node-uuid');
 
 //===================== GET handler for home page =============================//
 router.get('/', function(request, response) {
+  console.log('working');
+  MongoClient.connect('mongodb://127.0.0.1:27017/test', function(err, db) {
+    if (err) {
+      throw err;
+    }
+    var collection = db.collection('url_shortener');
+    console.log('inside mongo');
+    console.log(db.collection.find({target: "www.google.com"}));
+  });
+  // console.log(collection.select({target}))
   response.render('index', {});
 });
 
@@ -17,24 +27,32 @@ router.post('/url', function(request, response) {
     if (err) {
       throw err;
     }
-    var collection = db.collection('url_shortener');
-    collection.insert(
-      {
-        "shortened": random,
-        "target": url,
-        "clicks": 0
-      }, function(err, docs) {
-      collection.count(function(err, count) {
-        console.log("count = %s", count);
-      });
-      collection.update({'target': url}, { $inc: {"clicks": 1}
-      });
-      collection.update({'target': url}, { $currentDate: {"last_click": {$type: "timestamp"}}
-      });
-      collection.find().toArray(function(err, results) {
-        //console.dir(results);
-        db.close();
-      });
+    // if(there is a document with that url)
+      var collection = db.collection('url_shortener');
+      collection.insert(
+        {
+          "shortened": random,
+          "target": url,
+          "clicks": 0
+        }, function(err, docs) {
+        // collection.count(function(err, count) {
+        //   console.log("count = %s", count);
+        // });
+        collection.update({'target': url}, { $inc: {"clicks": 1}
+        });
+        collection.update({'target': url}, { $currentDate: {"last_click": {$type: "timestamp"}}
+        });
+        collection.find().toArray(function(err, results) {
+          //console.dir(results);
+          db.close();
+        });
+      // } else{
+      //   collection.update({'target': url}, { $inc: {"clicks": 1}
+      //   });
+      //   collection.update({'target': url}, { $currentDate: {"last_click": {$type: "timestamp"}}
+      //   });
+
+      // }
     });
     console.log(random);
     console.log(url); 
