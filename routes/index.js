@@ -20,6 +20,7 @@ router.get('/', function(request, response) {
   response.render('index', {});
 });
   // index.jade needs a form to submit a URL for shortening
+});
 
 
 
@@ -60,9 +61,13 @@ router.post('/url', function(request, response) {
     });
     console.log(random);
     console.log(url); 
-    response.redirect("/");
+    response.redirect("/info/" + random);
   });
+<<<<<<< HEAD
 });
+=======
+});  
+>>>>>>> master
   //create shortUrl and object with info like :
   /*
   {
